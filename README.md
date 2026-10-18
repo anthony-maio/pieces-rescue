@@ -1,15 +1,35 @@
 # Pieces Rescue
 
-Save your local Pieces memories and find your way back through them. Pieces
-Rescue preserves a selected local store, verifies the saved files, and opens a
-visual overview with click-through reading. Everything runs on your computer.
+Keep the memories you captured with Pieces. Pieces Rescue saves a copy of your
+local store and supporting files, recovers readable summaries and conversations,
+and gives you a visual way back into them. Everything runs on your computer,
+without a Pieces account or a running Pieces service.
 
 **[Download the Windows x64 beta](https://github.com/anthony-maio/pieces-rescue/releases/tag/v0.1.0-beta.1)**
+| [Watch the 22-second demo](https://github.com/anthony-maio/pieces-rescue/releases/download/v0.1.0-beta.1/brag.mp4)
+| [Get help](SUPPORT.md)
 
 This is an unsigned, opt-in beta. Clean-machine Windows testing and independent
 customer recovery testing remain open. Keep your original Pieces data.
 
-## Start here
+![Pieces Rescue overview showing remembered days and recorded topics, using invented sample memories](docs/images/overview.png)
+
+*Sample memories, not customer data. Choose a day or a topic to open the sessions
+behind it. The charts count summaries and conversations, not every captured event.*
+
+## From a remembered day to the full text
+
+Browse the calendar, follow a recorded topic, or search your recovered text. Open
+a session to read its summary or conversation, with its original record and
+references available alongside it.
+
+![Full summary reader showing the invented Garden Club planting plan, its decisions and next steps](docs/images/reader.png)
+
+*The full reader, using an invented Garden Club summary. Missing references stay
+visible. Subject groups in the overview are detected from titles; recorded topic
+tags come from the archive.*
+
+## Save your memories
 
 1. Download `pieces-rescue-0.1.0-beta.1-windows-x64.zip` from the release above.
    Download `SHA256SUMS.txt` if you want to verify its SHA-256 checksum.
@@ -22,31 +42,39 @@ customer recovery testing remain open. Keep your original Pieces data.
 5. Open the overview when recovery and verification finish. Choose a day or
    topic, then open the memories behind it. Keep the launcher open while reading.
 
+## What it saves
+
+```mermaid
+flowchart LR
+    A["Your local Pieces store"] --> B["Preserve a source copy"]
+    B --> C["Recover and verify"]
+    C --> D["Explore and read locally"]
+```
+
+| Saved layer | What it contains | Why keep it |
+| --- | --- | --- |
+| Source copy | A database snapshot including committed WAL content | Retains the selected store for future recovery work |
+| Supporting files | Attachments, format files and vector files, when present | Preserves files alongside the database; their original app features are not rebuilt |
+| Readable export | Raw records, decoded documents, searchable summaries and conversations | Lets you explore and read the content recovered from that store |
+| Verification receipts | File checksums, counts and recovery progress | Lets you check saved files and retry interrupted work |
+
+The preserved source and raw export are separate from the rebuildable charts and
+search index. If recovery is interrupted, keep the destination and use **Open /
+retry saved archive**. Completed files are verified before reuse.
+
+The tool can only recover content present in the selected store. A successful
+export does not prove that every past memory was on this computer. Preserve
+different stores separately and keep your originals.
+
+## Keep the archive private
+
 The archive is plaintext and can contain secrets. Its preserved database includes
-account records. Keep it private. Public issues should contain only safe diagnostic
-counts and a description of the failed step, never databases, manifests, memory
-text, or screenshots of private content.
+account records; those collections are excluded from the readable export by
+default. There are no uploads, analytics or automatic updates.
 
-## What you get
-
-- A source database snapshot with committed WAL content and supporting files
-  when available.
-- Raw exported records, checksum receipts, interruption/retry support and safe
-  diagnostics.
-- A calendar, recorded-tag heatmaps, detected subject groups, search and a full
-  reader for recovered summaries and conversations.
-- Local reading without a Pieces account, a running Pieces service, telemetry
-  or a hosted backend.
-
-The overview counts summaries and conversations, rather than every captured
-event. Detected subjects use title heuristics. Missing references stay visible.
-The tool cannot recover history that is absent from the selected store.
-
-## Watch the demo
-
-[![Pieces Rescue demo](https://github.com/anthony-maio/pieces-rescue/releases/download/v0.1.0-beta.1/brag.jpg)](https://github.com/anthony-maio/pieces-rescue/releases/download/v0.1.0-beta.1/brag.mp4)
-
-The 22-second video uses invented sample memories.
+Use a private local folder, preferably on an encrypted drive. Public issues
+should contain only safe diagnostic counts and a description of the failed step,
+never databases, manifests, memory text, or screenshots of private content.
 
 ## Documentation and support
 
@@ -58,8 +86,10 @@ The 22-second video uses invented sample memories.
 
 Windows x64 is the beta target. macOS, Linux and Windows ARM remain unverified.
 The current evidence comes from one Windows development machine and one user's
-source data. Independent recovery evidence and a signed distribution channel
-are needed before a stable release.
+source data, plus the portable synthetic tests in Windows CI. CI tests the source;
+it does not validate the packaged app on a clean Windows installation.
+Independent recovery evidence and a signed distribution channel are needed
+before a stable release.
 
 ## Development
 
