@@ -12,11 +12,11 @@ from release import VERSION
 FILES = (
     'release.py', 'recovery_io.py', 'recovery.py', 'launcher.py', 'rescue.py',
     'purefleece.py', 'auxiliary.py', 'atlas.py', 'viewer.py', 'prepare_viewer.py',
-    'render.py', 'viewer.html', 'viewer.js', 'viewer.css', 'README.txt', 'LICENSE',
+    'render.py', 'portable.py', 'viewer.html', 'viewer.js', 'viewer.css', 'README.txt', 'LICENSE',
     'THIRD_PARTY.txt', 'BETA_NOTES.md', 'SUPPORT.md', 'FORMAT.md',
     'requirements-build.txt', 'PiecesRescue.spec', 'build_release.py',
     'synthetic_store.py', 'test_rescue.py', 'test_viewer.py', 'test_atlas.py',
-    'test_recovery.py', 'test_release.py', '.gitignore',
+    'test_recovery.py', 'test_release.py', 'test_portable.py', '.gitignore',
 )
 
 

@@ -78,6 +78,90 @@ class AtlasDataTests(unittest.TestCase):
         self.assertEqual(record['missing_content'], 1)
         self.assertEqual(record['body'], 'Garden Club planning')
 
+    def test_profile_annotations_remain_separate_from_summary_narrative(self):
+        profiles = [
+            ('profile-report', 'HIERARCHICAL_PROFILE_SUMMARY', 'Separate profile report.'),
+            ('profile-description', 'PROFILE_DESCRIPTION', 'Separate profile description.'),
+        ]
+        stamp = '2026-07-01T12:00:00.123456+04:00'
+        with sqlite3.connect(self.source, factory=atlas.ReadConnection) as db:
+            summary = json.loads(db.execute('select json from nodes where id=?', (self.summary,)).fetchone()[0])
+            for identifier, kind, text in profiles:
+                summary['annotations']['indices'][identifier] = 0
+                document = {'type': kind, 'text': text, 'created': {'value': stamp}}
+                db.execute('insert into nodes values(?,?,?,?,?,?)',
+                           (identifier, 'annotations', kind, text, stamp, json.dumps(document)))
+            db.execute('update nodes set json=? where id=?', (json.dumps(summary), self.summary))
+        before = self.source.read_bytes()
+        with atlas.connect(atlas.ensure(self.root)) as db:
+            summary = atlas.read_session(db, self.summary)
+        self.assertIn('The recovered **full summary**.', summary['body'])
+        self.assertEqual([item['id'] for item in summary['content_sources']], [self.annotation])
+        self.assertEqual(summary['missing_content'], 0)
+        with atlas.connect(self.source) as db:
+            for identifier, kind, text in profiles:
+                self.assertNotIn(text, summary['body'])
+                record = db.execute('select * from nodes where id=?', (identifier,)).fetchone()
+                self.assertEqual(record['created'], stamp)
+                self.assertEqual(json.loads(record['json'])['text'], text)
+        self.assertEqual(self.source.read_bytes(), before)
+
+    def test_reverse_annotation_references_recover_only_recorded_attachments(self):
+        with sqlite3.connect(self.source, factory=atlas.ReadConnection) as db:
+            summary = json.loads(db.execute('select json from nodes where id=?', (self.summary,)).fetchone()[0])
+            summary['annotations']['indices']['missing-annotation'] = 0
+            db.execute('update nodes set json=? where id=?', (json.dumps(summary), self.summary))
+            annotation = json.loads(db.execute('select json from nodes where id=?', (self.annotation,)).fetchone()[0])
+            annotation['summaries'] = {'id': self.summary}
+            db.execute('update nodes set json=? where id=?', (json.dumps(annotation), self.annotation))
+            for identifier, document in [
+                ('inverse-body', {'type': 'SUMMARY', 'text': 'Narrative linked from the annotation.',
+                                  'summaries': {'iterable': [{'id': self.summary}]}}),
+                ('inverse-profile', {'type': 'HIERARCHICAL_PROFILE_SUMMARY', 'text': 'Retained profile prose.',
+                                     'summaries': {'indices': {self.summary: 0}}}),
+                ('unrelated', {'type': 'SUMMARY', 'text': 'Matching title alone is not an attachment.'}),
+            ]:
+                db.execute('insert into nodes values(?,?,?,?,?,?)',
+                           (identifier, 'annotations', 'Garden Club planning', '', '2026-07-01T12:00:00Z', json.dumps(document)))
+        before = self.source.read_bytes()
+        with atlas.connect(atlas.ensure(self.root)) as db:
+            summary = atlas.read_session(db, self.summary)
+        self.assertEqual(summary['body'].count('The recovered **full summary**.'), 1)
+        self.assertIn('Narrative linked from the annotation.', summary['body'])
+        self.assertNotIn('Retained profile prose.', summary['body'])
+        self.assertNotIn('Matching title alone', summary['body'])
+        self.assertEqual(summary['missing_content'], 1)
+        sources = {item['id']: item for item in summary['content_sources']}
+        self.assertEqual(set(sources), {self.annotation, 'inverse-body'})
+        self.assertEqual(sources[self.annotation]['provenance'], 'summary.annotations')
+        self.assertEqual(sources['inverse-body']['provenance'], 'annotation.summaries')
+        self.assertEqual(self.source.read_bytes(), before)
+
+    def test_previous_atlas_version_rebuilds_session_text(self):
+        with sqlite3.connect(self.cache, factory=atlas.ReadConnection) as db:
+            old = '2:' + atlas.signature(self.source).partition(':')[2]
+            db.execute("update meta set value=? where key='signature'", (old,))
+            db.execute('update sessions set body=? where id=?', ('Old combined profile prose.', self.summary))
+        with atlas.connect(atlas.ensure(self.root)) as db:
+            summary = atlas.read_session(db, self.summary)
+            signature = db.execute("select value from meta where key='signature'").fetchone()[0]
+        self.assertIn('The recovered **full summary**.', summary['body'])
+        self.assertNotIn('Old combined profile prose.', summary['body'])
+        self.assertEqual(signature, atlas.signature(self.source))
+        self.assertEqual(self.source.read_bytes(), self.before)
+
+    def test_external_atlas_output_leaves_source_archive_unchanged(self):
+        before = {path.name: path.read_bytes() for path in self.root.iterdir()}
+        with tempfile.TemporaryDirectory() as output:
+            cache = atlas.ensure(self.root, output_root=output)
+            self.assertEqual(cache, Path(output) / 'atlas.sqlite')
+            with atlas.connect(cache) as db:
+                self.assertIn('full summary', atlas.read_session(db, self.summary)['body'])
+            cache_before = cache.read_bytes()
+            self.assertEqual(atlas.ensure(self.root, output_root=output), cache)
+            self.assertEqual(cache.read_bytes(), cache_before)
+        self.assertEqual({path.name: path.read_bytes() for path in self.root.iterdir()}, before)
+
     def test_search_uses_recovered_text_and_week_axis_preserves_gaps(self):
         with atlas.connect(self.cache) as db:
             matches = atlas.browse(db, '2026-07-01', '2026-07-02', query='recovered-full')

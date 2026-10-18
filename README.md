@@ -5,7 +5,7 @@ local store and supporting files, recovers readable summaries and conversations,
 and gives you a visual way back into them. Everything runs on your computer,
 without a Pieces account or a running Pieces service.
 
-**[Download the Windows x64 beta](https://github.com/anthony-maio/pieces-rescue/releases/tag/v0.1.0-beta.1)**
+**[Download the Windows x64 beta](https://github.com/anthony-maio/pieces-rescue/releases/tag/v0.2.0-beta.1)**
 | [Watch the 22-second demo](https://github.com/anthony-maio/pieces-rescue/releases/download/v0.1.0-beta.1/brag.mp4)
 | [Get help](SUPPORT.md)
 
@@ -31,7 +31,7 @@ tags come from the archive.*
 
 ## Save your memories
 
-1. Download `pieces-rescue-0.1.0-beta.1-windows-x64.zip` from the release above.
+1. Download `pieces-rescue-0.2.0-beta.1-windows-x64.zip` from the release above.
    Download `SHA256SUMS.txt` if you want to verify its SHA-256 checksum.
 2. Extract the entire ZIP. Keep `_internal` beside `PiecesRescue.exe`.
    The app bundles its runtime; you do not need to install Python.
@@ -41,6 +41,30 @@ tags come from the archive.*
    destination, then click **Save my memories**.
 5. Open the overview when recovery and verification finish. Choose a day or
    topic, then open the memories behind it. Keep the launcher open while reading.
+
+## Take the text with you
+
+Click **Export Markdown** after recovery, or open an existing saved archive first.
+Choose a private parent folder, then open `index.md` in your editor or open the
+new notes folder as an Obsidian vault. Summaries and conversations contain their
+recovered text. Profile reports stay in separate notes, linked by their exact
+source identity, and recorded relationships connect the exported notes.
+
+The notes use relative links and readable filenames. Move the folder together
+and the links still work. Missing records stay visible, and indexes are paged
+for larger archives. This is a reading view of selected records; keep your saved
+source and raw export as the recovery copy. Source text is not redacted.
+
+For the packaged command line:
+
+```powershell
+.\PiecesRescue.exe --cli markdown "C:\MyArchive" "C:\MyNotes"
+```
+
+Use a new notes destination for each attempt. Markdown export reads the saved
+archive without needing Pieces installed or running. See the
+[upstream review](docs/upstream-review-2026-10-18.md) for the ideas adopted from
+Tsavo's exporter and the scope of this release.
 
 ## What it saves
 
@@ -111,7 +135,7 @@ python build_release.py NEW_BUILD_FOLDER --windows
 
 The builder uses an explicit source allowlist. Keep personal archives outside
 the repository; never add them to Git or attach them to a public issue.
-`SOURCE_SHA256.json` records the source files in the original beta package.
+`SOURCE_SHA256.json` records the source files in this version's release package.
 
 MIT license. Maintainer: Anthony Maio. See [LICENSE](LICENSE) and
 [THIRD_PARTY.txt](THIRD_PARTY.txt).

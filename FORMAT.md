@@ -55,3 +55,28 @@ the original source. Chart dates use UTC. Suggested subjects are title heuristic
 Verification detects accidental changes relative to the receipt. Receipts are
 not digitally signed and do not establish authorship or protect against someone
 who changes both data and receipt. Archives are plaintext and contain secrets.
+
+## Portable notes
+
+The optional Markdown export is a separate reading view. `index.md` links paged
+collection indexes; notes have readable filenames with stable identity suffixes.
+`record-map.json` maps source IDs and kinds to relative paths. `manifest.json`
+records the selected scope, counts, missing targets and relationship display
+limits. `portable.json` records progress and completion of this derivative only.
+It does not replace `recovery.json` or prove that the source archive is complete.
+
+Notes include summaries, conversations, people, tags, sources, websites, internal
+reports and attached annotations. HIERARCHICAL_PROFILE_SUMMARY and
+PROFILE_DESCRIPTION annotations remain independent reports rather than being
+inlined into summaries. Reverse annotation.summaries references can recover
+summary text, with that recorded direction retained in content provenance.
+
+Generated navigation uses relative links to emitted notes. Source HTML,
+link/image syntax and code delimiters are inert text; headings and emphasis
+are retained. Source content is not a publication-safe or
+redacted copy. Metadata retains exact source identity and timestamps. Notes do
+not include the encoded source, credentials collections, captures or supporting
+binary files. Keep the full recovery archive for those preserved bytes.
+
+An existing notes destination is never overwritten. Cancellation or failure
+keeps partial files and an unfinished receipt; retry into a new destination.

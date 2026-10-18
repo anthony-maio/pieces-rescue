@@ -1,4 +1,4 @@
-Pieces Rescue 0.1.0-beta.1
+Pieces Rescue 0.2.0-beta.1
 
 Save your local Pieces memories and explore them without a Pieces account,
 a running Pieces service, or a hosted backend. Everything runs on your computer.
@@ -85,6 +85,28 @@ Undated sessions do not appear in date charts. No captured HTML or script is
 executed; following an external link is an explicit user action. The server binds
 127.0.0.1 only. Other local apps with access to your account can read local data.
 
+Portable Markdown notes
+
+After recovery, click Export Markdown, or select an existing archive with
+Open / retry saved archive first. Choose a private parent folder. The app writes
+a new notes folder; start with index.md in a Markdown editor or open that folder
+as an Obsidian vault. No plugins or Pieces service are needed. Keep the notes
+folder together so relative links keep working after moving it.
+
+The notes include reconstructed summaries and conversations, people, recorded
+tags, sources, websites, reports and attached annotations. Profile reports stay
+in separate notes instead of being repeated inside each summary. Recorded links
+work in both directions. Missing targets and relationship display limits are
+reported. The notes are a selected reading view, not a full database backup.
+Keep preserved/ and export/raw/ for recovery and original records.
+
+Source HTML, link/image syntax and code delimiters are rendered as text;
+headings and emphasis remain readable. Generated navigation links point to
+exported notes. Source text is not redacted and may contain
+secrets. A completed notes export does not certify complete recovery. A stopped
+notes export keeps its partial files; choose a new destination to run it again.
+Stopping waits for summary preparation to finish if that stage is already running.
+
 Advanced source use (no third-party runtime packages)
 
   python launcher.py
@@ -92,6 +114,7 @@ Advanced source use (no third-party runtime packages)
   python recovery.py recover SOURCE NEW_ARCHIVE --source-closed
   python recovery.py verify ARCHIVE
   python recovery.py diagnostics ARCHIVE
+  python recovery.py markdown ARCHIVE NEW_NOTES_FOLDER
   python rescue.py serve ARCHIVE/export --port 8765
 
 SOURCE can be a Pieces folder or its Couchbase db.sqlite3. On Windows the usual
@@ -102,6 +125,7 @@ store is under:
 The Windows executable supports the same recovery commands with --cli:
   PiecesRescue.exe --cli recover SOURCE NEW_ARCHIVE --source-closed
   PiecesRescue.exe --cli verify ARCHIVE
+  PiecesRescue.exe --cli markdown ARCHIVE NEW_NOTES_FOLDER
   PiecesRescue.exe --serve ARCHIVE/export 8765
 
 Low-level export from an already preserved SQLite snapshot:

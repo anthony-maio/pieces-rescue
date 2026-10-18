@@ -303,6 +303,9 @@ def main():
     item.add_argument('source'); item.add_argument('output'); item.add_argument('--source-closed', action='store_true')
     for name in ('verify', 'diagnostics'):
         sub.add_parser(name).add_argument('output')
+    item = sub.add_parser('markdown', help='Create portable notes from a saved archive')
+    item.add_argument('source', help='Saved recovery folder or export folder')
+    item.add_argument('output', help='New private folder for the Markdown notes')
     args = parser.parse_args()
     try:
         if args.command == 'discover':
@@ -311,6 +314,9 @@ def main():
             recover(args.source, args.output, args.source_closed)
         elif args.command == 'verify':
             print(json.dumps(verify(args.output), indent=2))
+        elif args.command == 'markdown':
+            from portable import export_markdown
+            print(json.dumps(export_markdown(args.source, args.output), indent=2))
         else:
             print(json.dumps(diagnostics(args.output), indent=2))
     except (Cancelled, KeyboardInterrupt):

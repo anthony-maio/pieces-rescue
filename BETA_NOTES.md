@@ -1,4 +1,4 @@
-# Pieces Rescue 0.1.0-beta.1
+# Pieces Rescue 0.2.0-beta.1
 
 This beta preserves a selected local Pieces store and makes its recovered memories
 readable after Pieces is no longer available. The Windows app bundles its runtime
@@ -16,6 +16,12 @@ cloud dependency, telemetry, installer, or automatic update service.
 - Calendar, recorded-tag heatmaps, detected subject groups, full-text search,
   reconstructed summary/conversation reading and original-record access.
 - MIT source distribution and an explicit file allowlist for release packaging.
+- Portable Markdown notes from saved archives, with relative links, paged indexes,
+  readable filenames and explicit missing-target counts. The launcher and the
+  packaged command line both expose this export.
+- Separate profile-report notes and summary reconstruction from attachments
+  recorded on either the summary or annotation. No relationship is inferred
+  from matching names or prose.
 
 ## Scope and limits
 
@@ -35,6 +41,12 @@ and contain private material; the preserved database includes account records.
 Preserve into a private local folder and keep the original source. There is no
 promise to recover deleted history, absent cloud content, every old store version,
 or the running Pieces application itself.
+
+Markdown exports require a new folder for each attempt. Source HTML, links,
+images and code delimiters are displayed as text; headings and emphasis remain
+readable. Some editors may automatically recognize plain URLs. Stop takes effect
+after summary preparation if that stage is already running. Large-archive
+Markdown performance and native Obsidian application acceptance remain unverified.
 
 The overview counts summaries and conversations, not every captured event.
 Date charts exclude undated sessions. Subject groups are title heuristics. Missing

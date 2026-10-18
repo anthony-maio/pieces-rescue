@@ -113,6 +113,8 @@ def gui():
     stop.pack(side='left', padx=8)
     open_button = ttk.Button(controls, text='Open overview', state='disabled')
     open_button.pack(side='left')
+    markdown_button = ttk.Button(controls, text='Export Markdown...', state='disabled')
+    markdown_button.pack(side='left', padx=(8, 0))
     more = ttk.Frame(frame); more.grid(row=14, sticky='w')
     ttk.Label(frame, text='Public beta ' + VERSION + ' | Windows x64 | Keep your original Pieces folder.\nIf recovery stops, your saved files stay in the destination. Retry that folder to continue.', wraplength=760).grid(row=15, sticky='w', pady=(18, 0))
 
@@ -131,12 +133,13 @@ def gui():
         state['busy'] = True
         cancel.clear()
         action.configure(state='disabled'); stop.configure(state='normal'); open_button.configure(state='disabled')
+        markdown_button.configure(state='disabled')
         bar.start(16)
         def worker():
             try:
                 job()
             except (Cancelled, KeyboardInterrupt):
-                events.put(('stopped', 'Stopped. Retry this destination to continue. Your original source was kept.'))
+                events.put(('stopped', 'Stopped. Saved files were kept. Retry recovery in its destination; use a new folder for another Markdown export.'))
             except Exception as error:
                 events.put(('error', str(error)))
             finally:
@@ -161,7 +164,7 @@ def gui():
     action.configure(command=start)
     def request_stop():
         cancel.set()
-        status.set('Stopping at a safe point. Viewer preparation may need to finish first.')
+        status.set('Stopping at a safe point. Summary and viewer preparation may need to finish first.')
         stop.configure(state='disabled')
     stop.configure(command=request_stop)
 
@@ -190,6 +193,24 @@ def gui():
         run(work)
     open_button.configure(command=open_view)
 
+    def export_notes():
+        if state['busy']:
+            return
+        selected = Path(destination.get()).expanduser().resolve()
+        parent = filedialog.askdirectory(title='Choose a private parent folder for new Markdown notes')
+        if not parent:
+            return
+        from datetime import datetime
+        output = Path(parent) / ('Pieces-notes-' + datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
+        def work():
+            stop_server()
+            from portable import export_markdown
+            export_markdown(selected, output,
+                            progress=lambda message: events.put(('progress', message)), cancel=cancel.is_set)
+            events.put(('markdown', str(output)))
+        run(work)
+    markdown_button.configure(command=export_notes)
+
     def existing():
         if state['busy']:
             return
@@ -203,7 +224,9 @@ def gui():
             status.set('Saved recovery: ' + receipt.get('status', 'unknown') + '. Use Save my memories to retry, or open the recovered overview.')
         except (OSError, ValueError):
             status.set('Selected an existing export. Open overview to read it.')
-        open_button.configure(state='normal' if (Path(name) / 'knowledge.sqlite').exists() or (Path(name) / 'export/knowledge.sqlite').exists() else 'disabled')
+        available = (Path(name) / 'knowledge.sqlite').is_file() or (Path(name) / 'export/knowledge.sqlite').is_file()
+        open_button.configure(state='normal' if available else 'disabled')
+        markdown_button.configure(state='normal' if available else 'disabled')
     ttk.Button(more, text='Open / retry saved archive...', command=existing).pack(side='left')
     def diagnostic():
         if state['busy'] or not destination.get():
@@ -224,16 +247,20 @@ def gui():
                 if kind == 'progress' or kind == 'stopped':
                     status.set(value)
                 elif kind == 'error':
-                    status.set('Recovery needs attention. Saved files were kept. Retry the same folder after resolving the problem.')
-                    messagebox.showerror('Recovery needs attention', value + '\n\nKeep your original source and this destination. If the source changed, use a new destination.')
+                    status.set('This operation needs attention. Your saved files were kept.')
+                    messagebox.showerror('Operation needs attention', value + '\n\nKeep the saved archive and any unfinished output. Retry recovery in its destination; use a new folder for another Markdown export.')
                 elif kind == 'success':
                     status.set('Saved and verified. Open overview to explore your memories. Keep the preserved folder as your backup.')
+                elif kind == 'markdown':
+                    status.set('Markdown saved. Open index.md in your editor, or open the notes folder as an Obsidian vault.')
+                    messagebox.showinfo('Markdown saved', 'Your notes are in:\n' + value + '\n\nStart with index.md. Keep this folder together so its links work. These notes contain private source text; they are not a replacement for your preserved archive.')
                 elif kind == 'done':
                     state['busy'] = False
                     bar.stop(); action.configure(state='normal'); stop.configure(state='disabled')
                     path = Path(destination.get())
                     if (path / 'export/knowledge.sqlite').is_file() or (path / 'knowledge.sqlite').is_file():
                         open_button.configure(state='normal')
+                        markdown_button.configure(state='normal')
                     if state['closing']:
                         stop_server(); root.destroy(); return
         except queue.Empty:

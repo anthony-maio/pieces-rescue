@@ -12,3 +12,34 @@ requirements-build.txt. The build environment and private archives are excluded.
 
 Build reference: https://pyinstaller.org/en/stable/usage.html
 Fleece format reference: https://github.com/couchbase/fleece/blob/master/Fleece.md
+
+Portable note navigation and typed annotation handling draw on the design of
+Pieces Export by Tsavo Knott and contributors:
+https://github.com/pieces-app/export-tool
+Reviewed revision: 86bac28e62b561d5d6afbeef970c04f261d23c4b
+The Python implementation runs against the local recovered index. The upstream
+Go executable, dependencies, installers and private data are not bundled.
+
+Upstream license notice:
+
+MIT License
+
+Copyright (c) 2026 Mesh Intelligent Technologies, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

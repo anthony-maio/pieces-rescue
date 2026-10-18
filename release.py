@@ -1,2 +1,2 @@
 """Public build identity. Kept independent of local archives."""
-VERSION = '0.1.0-beta.1'
+VERSION = '0.2.0-beta.1'

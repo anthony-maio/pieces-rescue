@@ -20,6 +20,9 @@ present on this computer. Do not discard the saved source when decoding fails.
 | Some records did not decode | The encoded records and source snapshot remain available. Share safe diagnostic counts and the app version, not the data. A future decoder may recover them. |
 | Overview failed to prepare | Retry the same recovery. The saved source and raw export are separate from the viewer. |
 | Empty charts | Charts show dated summaries and conversations. Try Search -> All indexed records for other captures and undated content. |
+| Markdown export stopped | Keep its partial folder and retry Export Markdown into a new destination. This does not require another recovery from Pieces. |
+| Missing note or relationship | The notes include selected record kinds and bounded relationships. Check their manifest and the original archive; unavailable targets do not acquire invented files. |
+| Profile text missing from a summary | Profile reports now have their own notes. Follow the recorded relationship to the exact report. The original annotation remains in the archive. |
 | Unknown publisher | This beta executable is unsigned. Verify the download and its SHA-256 checksum. Follow your organization's software policy. |
 
 For a report, include the beta version, Windows version, failed step, whether the

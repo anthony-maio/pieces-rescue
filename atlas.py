@@ -14,8 +14,9 @@ from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-VERSION = '2'
+VERSION = '3'
 SESSION_KINDS = ('workstreamSummaries', 'conversations')
+PROFILE_ANNOTATIONS = ('HIERARCHICAL_PROFILE_SUMMARY', 'PROFILE_DESCRIPTION')
 GENERIC = set('a an the and or of in on to for with from by at as ai code review analysis planning development research implementation technical project projects summary overview update updates system systems design engineering software discussion integration debugging deployment testing work workflow documentation meeting daily notes management setup configuration maintenance optimization investigation architecture audit security task tasks strategy strategic engine agentic model models infrastructure safety career legal coordination content release operational planning platform deployment protocol governance integration support reflection synthesis workflow automation enhancement performance systems discussion refinement exploration progress networking'.split())
 
 
@@ -105,16 +106,29 @@ def detect_projects(sessions):
     return [(session_id, phrase) for session_id, phrases in per_session.items() for phrase in selected if phrase in phrases]
 
 
-def build(root):
+def build(root, output_root=None):
+    """Build derived sessions, optionally keeping every output outside the archive."""
     root = Path(root).resolve()
     source = root / 'knowledge.sqlite'
-    cache = root / 'atlas.sqlite'
+    destination = Path(output_root).resolve() if output_root is not None else root
+    destination.mkdir(parents=True, exist_ok=True)
+    cache = destination / 'atlas.sqlite'
     source_signature = signature(source)
     with connect(source) as db:
         sessions = [dict(row) for row in db.execute('select id,kind,title,body,created,json from nodes where kind in (?,?)', SESSION_KINDS)]
         documents = {row['id']: json.loads(row['json']) for row in sessions}
         ids = [identifier for document in documents.values() for field in ('annotations', 'tags', 'messages') for identifier in references(document, field)]
         related = related_nodes(db, ids)
+        # An annotation may record its summary attachment only on its own side.
+        # Use that recorded reference without adding edges to the source index.
+        summary_ids = {row['id'] for row in sessions if row['kind'] == 'workstreamSummaries'}
+        by_summary = defaultdict(list)
+        for item in db.execute("select id,kind,title,body,created,json from nodes where kind='annotations' order by id"):
+            parents = [parent for parent in references(json.loads(item['json']), 'summaries') if parent in summary_ids]
+            if parents:
+                related[item['id']] = dict(item)
+                for parent in parents:
+                    by_summary[parent].append(item['id'])
         # Also include messages whose parent is recorded only on the message.
         messages = [dict(row) for row in db.execute("select id,kind,title,body,created,json from nodes where kind='conversationMessages'")]
     by_conversation = defaultdict(list)
@@ -133,7 +147,8 @@ def build(root):
         row['missing_content'] = 0
         content = []
         if row['kind'] == 'workstreamSummaries':
-            identifiers = references(document, 'annotations')
+            direct_annotations = references(document, 'annotations')
+            identifiers = list(dict.fromkeys(direct_annotations + by_summary[row['id']]))
         else:
             identifiers = list(dict.fromkeys(references(document, 'messages') + by_conversation[row['id']]))
             identifiers.sort(key=lambda identifier: (related.get(identifier, {}).get('created') or '', identifier))
@@ -144,6 +159,12 @@ def build(root):
                 continue
             doc = json.loads(item['json'])
             if row['kind'] == 'workstreamSummaries':
+                if item['kind'] != 'annotations':
+                    row['missing_content'] += 1
+                    continue
+                # Profile reports remain separate source records, not summary prose.
+                if doc.get('type') in PROFILE_ANNOTATIONS:
+                    continue
                 text = doc.get('text')
             else:
                 fragment = doc.get('fragment') or {}
@@ -157,7 +178,11 @@ def build(root):
                     content.append('### ' + role.capitalize() + '\n\n' + text)
                 else:
                     content.append(text)
-                row['content_sources'].append({'id': identifier, 'kind': item['kind']})
+                content_source = {'id': identifier, 'kind': item['kind']}
+                if row['kind'] == 'workstreamSummaries':
+                    content_source['provenance'] = ('summary.annotations' if identifier in direct_annotations
+                                                    else 'annotation.summaries')
+                row['content_sources'].append(content_source)
         if content:
             row['body'] = '\n\n'.join(content)
         topic_labels = set()
@@ -169,7 +194,7 @@ def build(root):
                     topic_labels.add(label)
         topic_rows.extend((row['id'], label) for label in topic_labels)
     project_rows = detect_projects(sessions)
-    temp = root / ('atlas-' + uuid.uuid4().hex + '.tmp.sqlite')
+    temp = destination / ('atlas-' + uuid.uuid4().hex + '.tmp.sqlite')
     try:
         db = sqlite3.connect(temp)
         try:
@@ -201,30 +226,17 @@ def build(root):
     return cache
 
 
-def ensure(root):
+def ensure(root, output_root=None):
     root = Path(root).resolve()
-    cache = root / 'atlas.sqlite'
+    destination = Path(output_root).resolve() if output_root is not None else root
+    cache = destination / 'atlas.sqlite'
     if cache.exists():
         with connect(cache) as db:
             row = db.execute("select value from meta where key='signature'").fetchone()
             current = signature(root / 'knowledge.sqlite')
             if row and row['value'] == current:
                 return cache
-            if row and row['value'].startswith('1:') and VERSION == '2' and row['value'].partition(':')[2] == current.partition(':')[2]:
-                sessions = [dict(r) for r in db.execute('select id,title from sessions')]
-            else:
-                sessions = None
-        if sessions is not None:
-            db = sqlite3.connect(cache)
-            try:
-                db.execute('delete from projects')
-                db.executemany('insert into projects values(?,?)', detect_projects(sessions))
-                db.execute("update meta set value=? where key='signature'", (current,))
-                db.commit()
-            finally:
-                db.close()
-            return cache
-    return build(root)
+    return build(root, output_root=output_root)
 
 
 def bounds(db):
