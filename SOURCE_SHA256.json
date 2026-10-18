@@ -26,9 +26,9 @@
   "synthetic_store.py": "ff54293b69e9e548a4c0294ea98dc6e5947729c999d87ea8394fb293ae0d8bc8",
   "test_rescue.py": "6520a61d5b8ae7e08e001a69d8b08523adac9afbf2ff481a18dba68b6cff3cc0",
   "test_viewer.py": "029d5446d8f376326bcfbc049766fc0dfb76797aa78b6e3feb398f060e92bad0",
-  "test_atlas.py": "6dd53a925eceee26cbf668da591065cf48a0caa9d97334e800ab9ac5a40c7b51",
+  "test_atlas.py": "11b52bc4e40623c882ddbdb029d1d801ebbf11a5f30c67c87a12ae23dc93929c",
   "test_recovery.py": "9f51f612275fbea829ea5fd767a7e3c466589940224d0357c7baa179bcf822ba",
   "test_release.py": "7691467e77bbeda06c34c1c3a08b2154801e49b1146623ad3a59bb3c3479154d",
-  "test_portable.py": "15c60dc86843753f5530e117bf517377785dcb27d7efcd386a409bfd6ecf44ac",
+  "test_portable.py": "f1dc1c6dc15b3f31d3be760b3f1519fc3bc5ddf16fd62559cc0fcd12e5cf3b8a",
   ".gitignore": "274f38228597bb9af91db8a77522267c78148454eedc1d5d97f93996d9183e33"
 }

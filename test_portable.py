@@ -19,7 +19,7 @@ class PortableTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.source = self.root / 'saved' / 'export'
         self.source.mkdir(parents=True)
         self.output = self.root / 'notes'

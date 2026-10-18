@@ -11,7 +11,7 @@ import atlas
 class AtlasDataTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.source = self.root / 'knowledge.sqlite'
         db = sqlite3.connect(self.source)
         db.execute('create table nodes(id text primary key,kind text,title text,body text,created text,json text)')
@@ -154,7 +154,7 @@ class AtlasDataTests(unittest.TestCase):
         before = {path.name: path.read_bytes() for path in self.root.iterdir()}
         with tempfile.TemporaryDirectory() as output:
             cache = atlas.ensure(self.root, output_root=output)
-            self.assertEqual(cache, Path(output) / 'atlas.sqlite')
+            self.assertEqual(cache, Path(output).resolve() / 'atlas.sqlite')
             with atlas.connect(cache) as db:
                 self.assertIn('full summary', atlas.read_session(db, self.summary)['body'])
             cache_before = cache.read_bytes()
