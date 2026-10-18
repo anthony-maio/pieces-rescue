@@ -1,0 +1,14 @@
+Pieces Rescue's source code is licensed under MIT. See LICENSE.
+
+The source distribution has no third-party runtime packages. The independent
+Fleece reader implements the published Couchbase Fleece format. No Couchbase
+native library, reference source, or validation binary is shipped.
+
+The Windows binary distribution bundles CPython, SQLite, Tcl/Tk and supporting
+runtime libraries using PyInstaller. Their licenses are included in licenses/.
+PyInstaller's bootloader uses its license exception for bundled applications;
+the application source remains MIT licensed. Build tools are pinned in
+requirements-build.txt. The build environment and private archives are excluded.
+
+Build reference: https://pyinstaller.org/en/stable/usage.html
+Fleece format reference: https://github.com/couchbase/fleece/blob/master/Fleece.md

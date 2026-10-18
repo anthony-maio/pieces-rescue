@@ -1,0 +1,15 @@
+# Only explicitly reviewed source files belong in a public repository.
+*
+!/.gitignore
+!/*.py
+!/*.html
+!/*.css
+!/*.js
+!/LICENSE
+!/README.txt
+!/THIRD_PARTY.txt
+!/BETA_NOTES.md
+!/SUPPORT.md
+!/FORMAT.md
+!/requirements-build.txt
+!/PiecesRescue.spec

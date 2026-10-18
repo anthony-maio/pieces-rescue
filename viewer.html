@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Pieces Rescue | Memory atlas</title>
+    <link rel="stylesheet" href="/viewer.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail">
+        <div class="brand">Pieces Rescue<small>Memory atlas</small></div>
+        <nav aria-label="Archive views">
+          <button id="nav-atlas" class="active" aria-current="page">
+            Overview</button
+          ><button id="nav-search">Search</button
+          ><button id="nav-archive">Archive details</button>
+        </nav>
+        <div class="rail-foot">
+          Private, on your computer<br /><span id="source"></span>
+        </div>
+      </aside>
+      <main class="work">
+        <header class="top">
+          <div>
+            <h1 id="heading">Your memory, over time.</h1>
+            <p id="subtitle">
+              Explore a day, a topic, or a project. Then open the memories
+              behind it.
+            </p>
+          </div>
+          <div class="receipt" id="receipt">Reading export receipt...</div>
+        </header>
+        <div class="main">
+          <div id="status" role="status" aria-live="polite"></div>
+          <section id="atlas-view" aria-label="Visual archive overview">
+            <div class="range-bar">
+              <div class="presets" role="group" aria-label="Date range">
+                <button data-range="all" aria-pressed="true">All time</button
+                ><button data-range="90">Latest 90 days</button
+                ><button data-range="30">Latest 30 days</button>
+              </div>
+              <div class="date-fields">
+                <label>From <input type="date" id="range-from" /></label
+                ><label>To <input type="date" id="range-to" /></label
+                ><button id="apply-range">Apply</button>
+              </div>
+            </div>
+            <div id="atlas-stats" class="atlas-stats"></div>
+            <section class="chart-card calendar-card">
+              <div class="chart-head">
+                <div>
+                  <h2>Days remembered</h2>
+                  <p>
+                    Each square is a day. Darker squares have more sessions.
+                    Choose a day to read them.
+                  </p>
+                </div>
+                <button
+                  class="table-toggle"
+                  data-table="calendar"
+                  aria-expanded="false"
+                >
+                  Show table
+                </button>
+              </div>
+              <div id="calendar" class="calendar-scroll"></div>
+              <div id="calendar-table" class="table-wrap" hidden></div>
+              <div class="chart-foot">
+                <span id="calendar-caption"></span
+                ><span class="scale-key"
+                  >Fewer <i></i><i></i><i></i><i></i> More</span
+                >
+              </div>
+            </section>
+            <div class="atlas-grid">
+              <section class="chart-card topics-card">
+                <div class="chart-head">
+                  <div>
+                    <h2>Topics over time</h2>
+                    <p>
+                      Tags recorded on session summaries. Choose a topic or a
+                      week to see its sessions.
+                    </p>
+                  </div>
+                  <button
+                    class="table-toggle"
+                    data-table="topics"
+                    aria-expanded="false"
+                  >
+                    Show table
+                  </button>
+                </div>
+                <div id="topic-chart" class="topic-scroll"></div>
+                <div id="topics-table" class="table-wrap" hidden></div>
+                <p id="topic-caption" class="chart-foot"></p>
+              </section>
+              <section class="chart-card map-card">
+                <div class="chart-head">
+                  <div>
+                    <h2 id="map-title">Subjects seen together</h2>
+                    <p id="map-description">
+                      Project groups detected from repeated session titles.
+                    </p>
+                  </div>
+                  <button
+                    class="table-toggle"
+                    data-table="map"
+                    aria-expanded="false"
+                  >
+                    Show table
+                  </button>
+                </div>
+                <div id="project-map"></div>
+                <div id="map-table" class="table-wrap" hidden></div>
+                <p class="chart-foot">
+                  Choose a name to open its sessions. Lines count sessions
+                  shared by both groups.
+                </p>
+              </section>
+            </div>
+            <div class="overview-footer">
+              <button id="browse-all" class="primary">
+                Browse sessions in this range
+              </button>
+              <p id="atlas-note"></p>
+            </div>
+          </section>
+          <section id="browse-view" hidden>
+            <div class="browse-context">
+              <button id="back-overview" class="back">Back to overview</button>
+              <div>
+                <h2 id="browse-title">Sessions</h2>
+                <p id="browse-description"></p>
+              </div>
+              <button id="clear-selection" class="text-button" hidden>
+                Clear selection
+              </button>
+            </div>
+            <form id="form" class="searchbar">
+              <input
+                id="query"
+                type="search"
+                autocomplete="off"
+                aria-label="Search memories"
+                placeholder="Search the full text of your sessions"
+              /><button>Search</button>
+            </form>
+            <div class="search-options">
+              <label for="search-scope">Search in</label
+              ><select id="search-scope">
+                <option value="sessions">Sessions and conversations</option>
+                <option value="raw">All indexed records</option></select
+              ><select id="kind" aria-label="Record type" hidden>
+                <option value="">All record types</option>
+              </select>
+            </div>
+            <section class="list">
+              <div class="list-header">
+                <span id="result-title">Sessions</span
+                ><span id="result-count"></span>
+              </div>
+              <div id="results" class="results"></div>
+              <div class="pager">
+                <button id="previous" disabled>Previous</button
+                ><span id="page-number"></span
+                ><button id="next" disabled>Next</button>
+              </div>
+            </section>
+          </section>
+          <article id="reader-view" class="detail" hidden>
+            <div class="reader-navigation">
+              <button id="back-results" class="back">Back to sessions</button>
+              <div id="trail" class="trail"></div>
+            </div>
+            <div id="detail-head" class="detail-head"></div>
+            <div class="tabs" aria-label="Record views">
+              <button data-tab="read" class="active" aria-pressed="true">
+                Read</button
+              ><button data-tab="map" aria-pressed="false">References</button
+              ><button data-tab="original" aria-pressed="false">
+                Original record
+              </button>
+            </div>
+            <div id="pane" class="pane"></div>
+          </article>
+          <section id="archive-view" hidden>
+            <h2>What this export contains</h2>
+            <p class="archive-note">
+              Counts below describe indexed records. The visual overview groups
+              session summaries and conversations; it does not count every
+              capture as a separate session.
+            </p>
+            <div id="overview" class="overview"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="/viewer.js" defer></script>
+  </body>
+</html>
